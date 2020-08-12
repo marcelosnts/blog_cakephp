@@ -17,7 +17,7 @@ class ArticlesController extends AppController {
     }
 
     public function view($slug){
-        $article = $this->Articles->findBySlug($slug)->firstOrFail();
+        $article = $this->Articles->findBySlug($slug)->contain(['Tags'])->firstOrFail();
 
         $this->set(compact('article'));
     }
@@ -28,17 +28,24 @@ class ArticlesController extends AppController {
         if ($this->request->is('post')) {
             $article = $this->Articles->patchEntity($article, $this->request->getData());
 
-            if ($this->Articles->save($article)){
+            if ($this->Articles->save($article)) {
                 $this->Flash->success(__('Your article has been saved.'));
                 return $this->redirect(['action' => 'index']);
             }
             $this->Flash->error(__('Unable to add your article.'));
         }
+        $tags = $this->Articles->Tags->find('list');
+
+        $this->set('tags', $tags);
+
         $this->set('article', $article);
     }
 
     public function edit($slug){
-        $article = $this->Articles->findBySlug($slug)->firstOrFail();
+        $article = $this->Articles
+            ->findBySlug($slug)
+            ->contain(['Tags'])
+            ->firstOrFail();
 
         if ($this->request->is(['post', 'put'])) {
             $this->Articles->patchEntity($article, $this->request->getData());
@@ -49,6 +56,10 @@ class ArticlesController extends AppController {
             }
             $this->Flash->error(__('Unable to update your article.'));
         }
+
+        $tags = $this->Articles->Tags->find('list');
+
+        $this->set('tags', $tags);
 
         $this->set('article', $article);
     }
@@ -62,6 +73,20 @@ class ArticlesController extends AppController {
             $this->Flash->success(__('The {0} article has been deleted.', $article->title));
             return $this->redirect(['action' => 'index']);
         }
+    }
+
+    public function tags(...$tags){
+        // The 'pass' key is provided by CakePHP and contains all the passed URL path segments in the request.
+        //$tags = $this->request->getParam('pass');
+
+        $articles = $this->Articles->find('tagged', [
+            'tags' => $tags
+        ]);
+
+        $this->set([
+            'articles' => $articles,
+            'tags' => $tags
+        ]);
     }
 }
 
