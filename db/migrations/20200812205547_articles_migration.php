@@ -15,7 +15,7 @@ class ArticlesMigration extends AbstractMigration
             ->addColumn('created', 'datetime')
             ->addColumn('modified', 'datetime')
             ->addColumn('user_id', 'integer')
-            ->addForeignKey('user_id', 'users', 'id', ['delete' => 'CASCADE', 'update' => 'CASCADE'])
+            ->addForeignKey('user_id', 'users', 'id', ['delete' => 'CASCADE', 'update' => 'NO_ACTION'])
             ->create();
     }
 }
