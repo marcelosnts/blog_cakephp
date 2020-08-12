@@ -77,3 +77,7 @@ Router::scope('/', function (RouteBuilder $routes) {
      */
     $routes->fallbacks(DashedRoute::class);
 });
+
+Router::scope('/articles', function (RouteBuilder $routes) {
+    $routes->connect('/tagged/*', ['controller' => 'Articles', 'action' => 'tags']);
+});
